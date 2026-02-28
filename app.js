@@ -10,6 +10,8 @@ const state = {
   parts: [],
 };
 
+let resizeTimer;
+
 const els = {
   profilePreset: document.getElementById('profilePreset'),
   tubeWidth: document.getElementById('tubeWidth'),
@@ -45,7 +47,6 @@ function miterAllowance(angle, diagonal) {
   return (diagonal / 2) * Math.tan((deviation * Math.PI) / 180);
 }
 
-
 function getCutLineAngle(angle, side) {
   const normalized = normalizeAngle(angle);
   return side === 'left' ? normalized - 90 : 90 - normalized;
@@ -56,11 +57,6 @@ function getVisualStyle(part) {
     `--left-line-angle:${getCutLineAngle(part.angleLeft, 'left')}deg`,
     `--right-line-angle:${getCutLineAngle(part.angleRight, 'right')}deg`,
   ].join(';');
-=======
-function visualCutDepth(angle) {
-  const deviation = Math.abs(90 - normalizeAngle(angle));
-  return round((deviation / 60) * 22);
-
 }
 
 function getTube() {
@@ -89,17 +85,11 @@ function renderPartsVisual() {
   const cards = [];
   state.parts.forEach((part) => {
     const effective = calcEffectiveLength(part, kerf, tube);
-
     const visualStyle = getVisualStyle(part);
     for (let i = 0; i < part.qty; i += 1) {
       cards.push(`
       <article class="part-visual-card">
         <div class="part-shape" style="${visualStyle}"></div>
-    for (let i = 0; i < part.qty; i += 1) {
-      cards.push(`
-      <article class="part-visual-card">
-        <div class="part-shape" style="--left-cut:${visualCutDepth(part.angleLeft)}px; --right-cut:${visualCutDepth(part.angleRight)}px;"></div>
-
         <div class="part-visual-meta">
           <strong>${part.name} #${i + 1}</strong>
           <span>${part.length} мм · ${part.angleLeft}°/${part.angleRight}° · эфф. ${effective} мм</span>
@@ -123,11 +113,7 @@ function rerenderParts() {
         <td>${part.name}</td>
         <td>${part.length}</td>
         <td>${part.qty}</td>
-
         <td>${part.angleLeft}° / ${part.angleRight}°</td>
-        <td>${part.angleLeft}°</td>
-        <td>${part.angleRight}°</td>
-
         <td>${effective}</td>
         <td><button data-remove="${i}" class="secondary">Удалить</button></td>
       </tr>`;
@@ -185,11 +171,7 @@ function renderResult(stocks, stockLength) {
       <span class="badge">Расход: ${round(usedTotal)} мм</span>
       <span class="badge">Остаток: ${round(waste)} мм</span>
       <span class="badge">КПД: ${round(efficiency)}%</span>
-
-      <span class="badge">Адаптив: оптимизирован под resize окна</span>
-
-      <span class="badge">Масштаб визуализации: фиксированный</span>
-
+      <span class="badge">Линии реза: по углам деталей</span>
     </p>
   `;
 
@@ -204,13 +186,7 @@ function renderResult(stocks, stockLength) {
         .join('');
 
       const chips = stock.parts
-
         .map((part) => `<span class="result-chip" style="${getVisualStyle(part)}">${part.id}</span>`)
-        .map(
-          (part) =>
-            `<span class="result-chip" style="--left-cut:${visualCutDepth(part.angleLeft)}px; --right-cut:${visualCutDepth(part.angleRight)}px;">${part.id}</span>`,
-        )
-
         .join('');
 
       return `
@@ -282,9 +258,12 @@ els.clearBtn.addEventListener('click', () => {
   el.addEventListener('input', rerenderParts);
 });
 
-
 window.addEventListener('resize', () => {
-  rerenderParts();
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    rerenderParts();
+  }, 120);
 });
+
 rerenderParts();
 renderResult([], Number(els.stockLength.value));
