@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TubeCut Pro — Оптимизация раскроя профтрубы</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Производственный инструмент</p>
+          <h1>TubeCut Pro</h1>
+          <p class="subtitle">Оптимизация раскроя профтрубы с учетом углов, пропила и визуального плана.</p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls">
+          <h2>Параметры материала</h2>
+          <div class="grid">
+            <label>Тип профиля
+              <select id="profilePreset">
+                <option value="40x20">40×20</option>
+                <option value="40x40">40×40</option>
+                <option value="60x40">60×40</option>
+                <option value="60x60">60×60</option>
+                <option value="80x40">80×40</option>
+                <option value="custom">Свое значение</option>
+              </select>
+            </label>
+            <label>Ширина, мм<input id="tubeWidth" type="number" min="1" value="40" /></label>
+            <label>Высота, мм<input id="tubeHeight" type="number" min="1" value="20" /></label>
+            <label>Длина хлыста, мм<input id="stockLength" type="number" min="1000" step="10" value="6000" /></label>
+            <label>Толщина диска (пропил), мм<input id="kerf" type="number" min="0.5" step="0.1" value="2.5" /></label>
+          </div>
+
+          <h2>Добавить деталь</h2>
+          <form id="partForm" class="inline-form">
+            <input id="partName" placeholder="Название детали" value="Стойка" />
+            <input id="partLength" type="number" min="1" placeholder="Длина, мм" value="1200" />
+            <input id="partQty" type="number" min="1" placeholder="Кол-во" value="4" />
+            <input id="partAngleLeft" type="number" min="30" max="150" step="0.1" placeholder="Левый угол" value="90" />
+            <input id="partAngleRight" type="number" min="30" max="150" step="0.1" placeholder="Правый угол" value="45" />
+            <button type="submit">Добавить</button>
+          </form>
+
+          <div class="actions">
+            <button id="optimizeBtn">Оптимизировать</button>
+            <button id="demoBtn" class="secondary" type="button">Демо-набор</button>
+            <button id="clearBtn" class="ghost" type="button">Очистить</button>
+          </div>
+        </section>
+
+        <section class="panel workspace">
+          <h2>Список деталей</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Деталь</th>
+                  <th>Длина</th>
+                  <th>Кол-во</th>
+                  <th>Углы</th>
+                  <th>Эфф. длина</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="partsBody"></tbody>
+            </table>
+          </div>
+
+          <h3>Визуализация деталей (фиксированный размер)</h3>
+          <div id="partsVisual" class="parts-visual"></div>
+
+          <h2>Результат раскроя</h2>
+          <div id="summary"></div>
+          <div id="plan"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
